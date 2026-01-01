@@ -102,8 +102,8 @@ const Navbar = () => {
     return (
         <nav
             className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled
-                    ? 'bg-[#141414]/95 backdrop-blur-sm shadow-xl'
-                    : 'bg-gradient-to-b from-black/80 to-transparent'
+                ? 'bg-[#141414]/95 backdrop-blur-sm shadow-xl'
+                : 'bg-gradient-to-b from-black/80 to-transparent'
                 }`}
         >
             <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12">
@@ -122,8 +122,8 @@ const Navbar = () => {
                                     key={link.path}
                                     to={link.path}
                                     className={`text-sm font-medium transition-all duration-300 hover:text-white ${location.pathname === link.path
-                                            ? 'text-white font-semibold'
-                                            : 'text-gray-300'
+                                        ? 'text-white font-semibold'
+                                        : 'text-gray-300'
                                         }`}
                                 >
                                     {link.label}
@@ -144,8 +144,8 @@ const Navbar = () => {
                         <div className="relative" ref={searchRef}>
                             <div
                                 className={`flex items-center transition-all duration-300 ${showSearch
-                                        ? 'bg-black/90 border border-white/30 px-3 py-1.5 rounded'
-                                        : ''
+                                    ? 'bg-black/90 border border-white/30 px-3 py-1.5 rounded'
+                                    : ''
                                     }`}
                             >
                                 <button
@@ -231,7 +231,7 @@ const Navbar = () => {
                                                     {/* QR Code */}
                                                     <div className="bg-white rounded-lg p-2 mb-3 w-fit">
                                                         <img
-                                                            src="/qrdonet.jpeg"
+                                                            src={`${import.meta.env.BASE_URL}qrdonet.jpeg`}
                                                             alt="QR Code Donasi"
                                                             className="w-32 h-32 object-contain"
                                                         />
