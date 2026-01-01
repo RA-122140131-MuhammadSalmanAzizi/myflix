@@ -52,6 +52,19 @@ const Navbar = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
+    // Auto-open notifications after 3 seconds - ONLY on first visit per session
+    useEffect(() => {
+        const hasSeenNotification = sessionStorage.getItem('myflix_notif_shown');
+
+        if (!hasSeenNotification && location.pathname.startsWith('/browse')) {
+            const timer = setTimeout(() => {
+                setShowNotifications(true);
+                sessionStorage.setItem('myflix_notif_shown', 'true');
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, []); // Only run once on mount
+
     // Close dropdowns when clicking outside
     useEffect(() => {
         const handleClickOutside = (e) => {

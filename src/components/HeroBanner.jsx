@@ -34,12 +34,11 @@ const HeroBanner = ({ movie, onChangeMovie, onPlay, onInfo, forcePause }) => {
     // Auto-change movie logic with 3-step animation
     useEffect(() => {
         if (!movie) return;
-        if (forcePause) return; // Stop rotation if paused
-
+        if (forcePause || !isVisible) return; // Stop rotation if paused or scrolled away
         const changeTimer = setTimeout(handleNextMovie, 40000); // 40 seconds
 
         return () => clearTimeout(changeTimer);
-    }, [movie, forcePause, handleNextMovie]);
+    }, [movie, forcePause, isVisible, handleNextMovie]);
 
     // Helper to send YouTube API commands
     const sendCommand = useCallback((command) => {

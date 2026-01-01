@@ -6,7 +6,7 @@ const WatchPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [movie, setMovie] = useState(null);
-    const [isPlaying, setIsPlaying] = useState(true); // Auto-play
+    const [isPlaying, setIsPlaying] = useState(false); // Start false, YouTube will set true when playing
     const [isMuted, setIsMuted] = useState(false);
     const [volume, setVolume] = useState(100);
     const [currentTime, setCurrentTime] = useState(0);
@@ -211,47 +211,46 @@ const WatchPage = () => {
         triggerFeedback('forward');
     };
 
-
-    // Keep track of playing state in a ref for the event listener closure
-    const isPlayingRef = useRef(isPlaying);
+    // Auto-hide controls logic - simplified and reliable
     useEffect(() => {
-        isPlayingRef.current = isPlaying;
-    }, [isPlaying]);
+        const container = containerRef.current;
+        if (!container) return;
 
-    // Auto-hide controls logic
-    useEffect(() => {
-        const handleMouseMove = () => {
+        const hideControls = () => {
+            if (isPlaying) {
+                setShowControls(false);
+            }
+        };
+
+        const handleActivity = () => {
             setShowControls(true);
 
+            // Clear any existing timeout
             if (controlsTimeoutRef.current) {
                 clearTimeout(controlsTimeoutRef.current);
             }
 
-            controlsTimeoutRef.current = setTimeout(() => {
-                // Check the REF, not the state directly, to get current value inside timeout
-                if (isPlayingRef.current) {
-                    setShowControls(false);
-                }
-            }, 3000); // Hide after 3s of inactivity
+            // Set new timeout to hide controls
+            controlsTimeoutRef.current = setTimeout(hideControls, 2000);
         };
 
-        const container = containerRef.current;
-        if (container) {
-            // Trigger once on mount to start timer
-            handleMouseMove();
-            container.addEventListener('mousemove', handleMouseMove);
-            // Also handle touch for mobile
-            container.addEventListener('touchstart', handleMouseMove);
-        }
+        // Initial trigger
+        handleActivity();
+
+        // Add event listeners
+        container.addEventListener('mousemove', handleActivity);
+        container.addEventListener('click', handleActivity);
+        container.addEventListener('touchstart', handleActivity);
 
         return () => {
-            if (container) {
-                container.removeEventListener('mousemove', handleMouseMove);
-                container.removeEventListener('touchstart', handleMouseMove);
+            container.removeEventListener('mousemove', handleActivity);
+            container.removeEventListener('click', handleActivity);
+            container.removeEventListener('touchstart', handleActivity);
+            if (controlsTimeoutRef.current) {
+                clearTimeout(controlsTimeoutRef.current);
             }
-            if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
         };
-    }, []); // Empty dependency array, event listener attached ONCE
+    }, [isPlaying]); // Re-run when isPlaying changes to update the hideControls closure
 
     // Format time helper
     const formatTime = (time) => {
@@ -341,7 +340,7 @@ const WatchPage = () => {
             {/* Back Button (Always accessible) */}
             <button
                 onClick={handleBack}
-                className={`absolute top-6 left-6 z-50 text-white hover:bg-white/20 p-2 rounded-full transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'}`}
+                className={`absolute top-6 left-6 z-50 text-white hover:bg-white/20 p-2 rounded-full transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
             >
                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -362,7 +361,7 @@ const WatchPage = () => {
 
             {/* Controls Overlay */}
             <div
-                className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent px-8 pb-8 pt-20 z-50 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'}`}
+                className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent px-8 pb-8 pt-20 z-50 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
             >
                 {/* Progress Bar */}
                 <div className="flex items-center gap-4 mb-4">
